@@ -9,13 +9,13 @@ function transform(files = []) {
     return files.map(file => XLSX.readFile(file))
         .map(workbook => workbook.Sheets)
         .map(transformSheets)
-        .filter(isTruthy)
 }
 
 function transformSheets(sheets) {
     return Object.keys(sheets)
         .map(sheetName => ({ sheetName, sheet: sheets[sheetName] }))
         .map(transformSheet)
+        .filter(isTruthy)
 }
 
 function transformSheet({ sheetName, sheet }) {
