@@ -1,65 +1,55 @@
 if (typeof require !== 'undefined') XLSX = require('xlsx');
 const maps = require('./gmaps.js');
 
-module.exports = {transform};
+module.exports = { transform };
 
-function transform(files) {
+const isTruthy = value => !!value;
 
-    files.forEach(file => {
-
-        let workbook = XLSX.readFile(file);
-
-        Promise.all(Object.entries(workbook.Sheets)
-            .map(transformSheet))
-            .then(console.log)
-            .catch(console.log);
-
-
-    })
+function transform(files = []) {
+    return files.map(file => XLSX.readFile(file))
+        .map(workbook => workbook.Sheets)
+        .map(transformSheets)
+        .filter(isTruthy)
 }
 
-function transformSheet(metaSheet) {
-    return new Promise((resolve, reject) => {
+function transformSheets(sheets) {
+    return Object.keys(sheets)
+        .map(sheetName => ({ sheetName, sheet: sheets[sheetName] }))
+        .map(transformSheet)
+}
 
-        let sheetName = metaSheet[0];
-        let sheet = metaSheet[1];
+function transformSheet({ sheetName, sheet }) {
+    // e.g.: !ref = A1:Q23
+    const [meta] = sheet['!ref'].split(':');
+    const maxRow = parseInt(meta.match(/\d+/g), 10);
 
-        // e.g.: !ref = A1:Q23
-        let meta = sheet['!ref'].split(':');
-        let maxRow = parseInt(meta[1].match(/\d+/g), 10);
-
-        // find x
-        let tours = findToursInSheet(sheet, maxRow);
-        if (!tours) {
-            return reject("no tours were found");
-        } else {
-            return Promise.all(tours.map(tour => transformTour(sheet, tour)));
-        }
-    })
+    // find x
+    const tours = findToursInSheet(sheet, maxRow);
+    if (!tours) {
+        return null;
+    }
+    return tours.map(tour => transformTour(sheet, tour));
 }
 
 function transformTour(sheet, tour) {
-    return new Promise((resolve, reject) => {
 
-        console.log(tour);
+    console.log(tour);
 
-        let firstCol = 'A';
-        let placeCol = 'B';
-        let hotelCol = 'C';
-        let distanceCol = 'D';
-        let durationCol = 'E';
+    const firstCol = 'A';
+    const placeCol = 'B';
+    const hotelCol = 'C';
+    const distanceCol = 'D';
+    const durationCol = 'E';
 
+    return Promise.resolve("Good job")
 
-
-        return resolve("Good job")
-    })
 }
 
 function findToursInSheet(sheet, maxRow) {
 
-    let col = 'A';
-    let tours = [];
-    let tour = {};
+    const col = 'A';
+    const tours = [];
+    const tour = {};
 
     // fuzzy logic ¯\_(ツ)_/¯
     for (let i = 0; i <= maxRow; i++) {
