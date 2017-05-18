@@ -3,6 +3,9 @@ const googleMapsClient = require('@google/maps').createClient({
     Promise: require('q').Promise
 });
 
+module.exports = {durAndDis};
+
+
 function durAndDis(places) {
     return new Promise((resolve, reject) => {
         googleMapsClient.directions(places)
@@ -23,7 +26,3 @@ function durAndDis(places) {
     })
 
 }
-
-durAndDis({origin: 'Town Hall, Sydney, NSW', destination: 'Parramatta, NSW'})
-    .then(res => console.log(res))
-    .catch(console.log);

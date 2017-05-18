@@ -7,8 +7,6 @@ const button = document.getElementById('openFile');
 
 const excel = require('./excel.js');
 
-excel.transform(['/Users/steffen/Google Drive/Eigene Dateien/Kostenplanung 2017-05-01 - FERTIG.xlsx']);
-
 
 button.addEventListener('click', function () {
     dialog.showOpenDialog(
