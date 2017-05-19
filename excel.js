@@ -25,13 +25,18 @@ const setDuration = (cell, val) => {
 
 
 function transform(files = []) {
-    files.forEach(file => {
-        let workbook = XLSX.readFile(file);
+    return new Promise((resolve, reject) => {
 
-        transformSheets(workbook.Sheets);
+        files.forEach(file => {
+            let workbook = XLSX.readFile(file);
 
-        let splitted = file.split('.');
-        XLSX.writeFile(workbook, splitted[0] + '_COPY.' + splitted[1]);
+            transformSheets(workbook.Sheets);
+
+            let splitted = file.split('.');
+            XLSX.writeFile(workbook, splitted[0] + '_COPY.' + splitted[1], {bookType: 'xlsx'});
+        });
+
+        return resolve('fertiiiiiiig');
     })
 }
 

@@ -19,7 +19,9 @@ button.addEventListener('click', function () {
         }, files => {
             if (files) {
                 files.forEach(console.log);
-                excel.transform(files);
+                excel.transform(files)
+                    .then(alert)
+                    .catch(alert);
             }
 
         })
