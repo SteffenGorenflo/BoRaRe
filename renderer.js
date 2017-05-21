@@ -12,16 +12,13 @@ button.addEventListener('click', function () {
     dialog.showOpenDialog(
         {
             filters: [
-                {name: 'Excel', extensions: ['xlsx', 'xlx']},
-                {name: 'Images', extensions: ['jpg', 'png', 'gif']}
+                {name: 'Excel', extensions: ['xlsx', 'xlx']}
             ],
             properties: ['openFile', 'multiSelections']
         }, files => {
             if (files) {
-                files.forEach(console.log);
                 excel.transform(files)
-                    .then(alert)
-                    .catch(alert);
+                    .then(() => alert("Jetzt wirklich fertig. Ganz wirklich"));
             }
 
         })

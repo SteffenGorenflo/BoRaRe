@@ -7,67 +7,63 @@ module.exports = {transform};
 const isTruthy = value => !!value;
 const get = cell => cell ? cell.v : undefined;
 
-const setDistance = (cell, val) => {
-    if (cell && val) {
+const setDistance = val => {
+    if (val) {
+        let cell = {};
         val = Math.round((val / 1000) * 10) / 10;
         cell.v = val;
         cell.w = val + '';
+        cell.t = 'n';
+        return cell;
     }
+    return undefined;
 };
 
-const setDuration = (cell, val) => {
-    if (cell && val) {
+const setDuration = val => {
+    if (val) {
+        let cell = {};
         cell.v = val / (60 * 60 * 24);
         cell.w = Math.floor(val / (60 * 60)) + ':' + Math.round(val / 60);
+        cell.t = 'n';
+        return cell;
     }
+    return undefined;
 
 };
 
 
 function transform(files = []) {
-    return new Promise((resolve, reject) => {
 
-        files.forEach(file => {
-            let workbook = XLSX.readFile(file);
+    return Promise.all(files.map(file => {
+        let workbook = XLSX.readFile(file);
+        let splitted = file.split('.');
 
-            transformSheets(workbook.Sheets);
+        return transformSheets(workbook.Sheets)
+            .then(() => {
+                XLSX.writeFile(workbook, splitted[0] + '_COPY.' + splitted[1], {bookType: 'xlsx'})
+            })
 
-            let splitted = file.split('.');
-            XLSX.writeFile(workbook, splitted[0] + '_COPY.' + splitted[1], {bookType: 'xlsx'});
-        });
-
-        return resolve('fertiiiiiiig');
-    })
+    }));
 }
 
 function transformSheets(sheets) {
-    return Object.keys(sheets)
-        .map(sheetName => ({sheetName, sheet: sheets[sheetName]}))
+    return Promise.all(Object.keys(sheets)
+        .map(sheetName => sheets[sheetName])
         .map(transformSheet)
-        .filter(isTruthy)
+        .filter(isTruthy))
 }
 
-function transformSheet({sheetName, sheet}) {
+function transformSheet(sheet) {
     // e.g.: !ref = A1:Q23
     const meta = sheet['!ref'].split(':')[1];
     const maxRow = parseInt(meta.match(/\d+/g), 10);
-
-    // find x
-    const tours = findToursInSheet(sheet, maxRow);
-    if (!tours) {
-        return null;
-    }
-    return tours.map(tour => transformTour(sheet, tour));
-}
-
-function transformTour(sheet, tour) {
 
     const placeCol = 'B';
     const hotelCol = 'C';
     const distanceCol = 'D';
     const durationCol = 'E';
 
-    _.range(tour.start, tour.end - 1).map(async i => {
+    return Promise.all(_.range(0, maxRow).map(async i => {
 
         let orig = get(sheet[hotelCol + i]) + ', ' + get(sheet[placeCol + i]);
         let dest = get(sheet[hotelCol + (i + 1)]) + ', ' + get(sheet[placeCol + (i + 1)]);
@@ -79,47 +75,16 @@ function transformTour(sheet, tour) {
             res = {distance: {value: 0}, duration: {value: 0}}
         }
 
-        setDistance(sheet[distanceCol + i], res.distance.value);
-        setDuration(sheet[durationCol + i], res.duration.value);
+        let dis = setDistance(res.distance.value);
+        let dur = setDuration(res.duration.value);
 
-    });
-
-    return sheet;
-}
-
-function findToursInSheet(sheet, maxRow) {
-
-    const col = 'A';
-    let tours = [];
-    let tour = {};
-
-    // fuzzy logic ¯\_(ツ)_/¯
-    for (let i = 0; i <= maxRow; i++) {
-
-        let x = (sheet[col + i] ? sheet[col + i].v : undefined);
-
-        if (!x) {
-            if (tour.start && tour.pause) {
-                tour.end = i - 1;
-                tours.push(tour);
-                tour = {};
-            }
+        if (dis) {
+            sheet[distanceCol + (i + 1)] = dis;
         }
-
-        if (x && x === '#') {
-
-            if (!tour.start) {
-                tour.start = i + 1;
-            } else {
-                tour.pause = i;
-            }
+        if (dur) {
+            sheet[durationCol + (i + 1)] = dur;
         }
 
 
-        if (i === maxRow) {
-            tour.end = i;
-            tours.push(tour);
-        }
-    }
-    return tours;
+    }));
 }
