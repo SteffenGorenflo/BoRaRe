@@ -1,20 +1,22 @@
 {
-  "name": "electron-quick-start",
+  "name": "BoRaRe",
   "version": "1.0.0",
-  "description": "A minimal Electron application",
+  "description": "BodenseeRadwegRechner",
   "main": "main.js",
   "scripts": {
-    "start": "electron ."
+    "start": "electron .",
+    "pack": "build --dir",
+    "dist": "build"
   },
-  "repository": "https://github.com/electron/electron-quick-start",
+  "repository": "https://github.com/SteffenGorenflo/BoRaRe",
   "keywords": [
     "Electron",
-    "quick",
-    "start",
-    "tutorial",
-    "demo"
+    "Radwegreisen",
+    "Bodenseeradweg",
+    "Rechner",
+    "Tour"
   ],
-  "author": "GitHub",
+  "author": "SteffenGorenflo",
   "license": "CC0-1.0",
   "devDependencies": {
     "electron": "~1.6.2"
@@ -25,5 +27,15 @@
     "lodash": "^4.17.4",
     "q": "^1.5.0",
     "xlsx": "^0.10.1"
-  }
+  },
+  "build": {
+    "appId": "de.gorenflo.borare",
+    "mac": {
+      "category": "your.app.category.type"
+    },
+    "win": {
+      "target": "portable"
+    }
+  },
+  "postinstall": "install-app-deps"
 }

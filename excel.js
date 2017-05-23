@@ -69,6 +69,10 @@ function transformSheet(sheet) {
         let dest = get(sheet[hotelCol + (i + 1)]) + ', ' + get(sheet[placeCol + (i + 1)]);
         let res;
 
+        if (orig.toLowerCase().startsWith("pause")) {
+            orig = get(sheet[hotelCol + (i - 1)] + ',' + get(sheet[placeCol + (i - 1)]));
+        }
+
         try {
             res = await maps.durAndDis({origin: orig, destination: dest});
         } catch (e) {
