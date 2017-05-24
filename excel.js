@@ -70,7 +70,7 @@ function transformSheet(sheet) {
         let res;
 
         if (orig.toLowerCase().startsWith("pause")) {
-            orig = get(sheet[hotelCol + (i - 1)] + ',' + get(sheet[placeCol + (i - 1)]));
+            orig = get(sheet[hotelCol + (i - 1)]) + ',' + get(sheet[placeCol + (i - 1)]);
         }
 
         try {
